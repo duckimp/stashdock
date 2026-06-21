@@ -81,6 +81,9 @@
                                         {{-- Sync --}}
                                         @include('projects.partials.quick-sync-modal', ['project' => $project])
 
+                                        {{-- Remote --}}
+                                        @include('projects.partials.remote-modal', ['project' => $project])
+
                                         {{-- Diff --}}
                                         @include('projects.partials.diff-modal', ['project' => $project])
 
@@ -265,6 +268,35 @@
                             setTimeout(() => { this.open = false; window.location.reload(); }, 1200);
                         } else { this.error = data.message || data.error || 'Sync failed.'; }
                     } catch(e) { this.loading = false; this.error = 'Network error. Please try again.'; }
+                }
+            }));
+
+            // ── remoteModal ──────────────────────────────────────────────
+            Alpine.data('remoteModal', (projectEncoded) => ({
+                open: false, remoteUrl: '', loading: false, saving: false, error: null, success: null,
+
+                async openModal() {
+                    this.open = true; this.error = null; this.success = null; this.remoteUrl = ''; this.loading = true;
+                    try {
+                        const data = await window.gitActionRequest(projectEncoded, 'get-remote');
+                        if (data.status === 'ok') {
+                            this.remoteUrl = data.output ? data.output.trim() : '';
+                        }
+                    } catch(e) {} finally { this.loading = false; }
+                },
+
+                async submit() {
+                    const url = this.remoteUrl.trim();
+                    if (!url) { this.error = 'Remote URL cannot be empty.'; return; }
+                    this.saving = true; this.error = null; this.success = null;
+                    try {
+                        const data = await window.gitActionRequest(projectEncoded, 'add-remote', { remote_url: url });
+                        if (data.status === 'ok') {
+                            this.success = 'Remote URL saved successfully!';
+                            setTimeout(() => { this.open = false; window.location.reload(); }, 1200);
+                        } else { this.error = data.message || 'Failed to save remote URL.'; }
+                    } catch(e) { this.error = 'Network error. Please try again.'; }
+                    finally { this.saving = false; }
                 }
             }));
 

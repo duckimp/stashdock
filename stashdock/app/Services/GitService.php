@@ -198,13 +198,28 @@ class GitService
     }
 
     /**
-     * Add a remote named "origin" pointing to $url.
+     * Add or update a remote named "origin" pointing to $url.
      */
     public function addRemote(string $path, string $url): GitResult
     {
         $this->validatePath($path);
 
+        $check = $this->run(['git', 'remote', 'get-url', 'origin'], $path);
+        if ($check->success) {
+            return $this->run(['git', 'remote', 'set-url', 'origin', $url], $path);
+        }
+
         return $this->run(['git', 'remote', 'add', 'origin', $url], $path);
+    }
+
+    /**
+     * Get the remote URL for origin.
+     */
+    public function getRemoteUrl(string $path): GitResult
+    {
+        $this->validatePath($path);
+
+        return $this->run(['git', 'remote', 'get-url', 'origin'], $path);
     }
 
     /**

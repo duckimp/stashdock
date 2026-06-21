@@ -48,6 +48,7 @@ class ProjectController extends Controller
             $result = match ($action) {
                 'init'          => $this->gitService->init($projectPath),
                 'add-remote'    => $this->gitService->addRemote($projectPath, $request->input('remote_url', '')),
+                'get-remote'    => $this->gitService->getRemoteUrl($projectPath),
                 'diff'          => $this->gitService->getDiff($projectPath),
                 'status'        => $this->gitService->getStatus($projectPath),
                 'fetch'         => $this->gitService->fetch($projectPath),

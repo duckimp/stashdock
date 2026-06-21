@@ -35,3 +35,38 @@ test('getBranches parses branch list correctly', function () {
     // Cleanup
     exec("rm -rf {$tmpDir}");
 });
+
+test('addRemote and getRemoteUrl work correctly', function () {
+    $service = new GitService();
+
+    // Create a real temp git repo
+    $tmpDir = sys_get_temp_dir() . '/stashdock_git_remote_' . uniqid();
+    mkdir($tmpDir);
+    config(['stashdock.parent_dir' => dirname($tmpDir)]);
+
+    exec("git init {$tmpDir} 2>/dev/null");
+
+    // Initially getRemoteUrl should fail / not succeed
+    $res = $service->getRemoteUrl($tmpDir);
+    expect($res->success)->toBeFalse();
+
+    // Add remote
+    $res = $service->addRemote($tmpDir, 'https://github.com/example/repo.git');
+    expect($res->success)->toBeTrue();
+
+    // Get remote should succeed and return the URL
+    $res = $service->getRemoteUrl($tmpDir);
+    expect($res->success)->toBeTrue();
+    expect(trim($res->output))->toBe('https://github.com/example/repo.git');
+
+    // Update remote URL
+    $res = $service->addRemote($tmpDir, 'https://github.com/example/new-repo.git');
+    expect($res->success)->toBeTrue();
+
+    $res = $service->getRemoteUrl($tmpDir);
+    expect($res->success)->toBeTrue();
+    expect(trim($res->output))->toBe('https://github.com/example/new-repo.git');
+
+    // Cleanup
+    exec("rm -rf {$tmpDir}");
+});
