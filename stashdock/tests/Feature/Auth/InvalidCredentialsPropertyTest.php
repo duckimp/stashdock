@@ -9,23 +9,23 @@ uses(RefreshDatabase::class);
 test('invalid credentials always produce an error', function () {
     // Create one real user
     $realUser = User::factory()->create([
-        'email'    => 'real@example.com',
+        'username' => 'realuser',
         'password' => bcrypt('correct-password'),
     ]);
 
     // Clear any existing rate limiting
-    RateLimiter::clear('real@example.com|127.0.0.1');
+    RateLimiter::clear('realuser|127.0.0.1');
 
     // Run 20 iterations with random wrong credentials
     for ($i = 0; $i < 20; $i++) {
-        $fakeEmail    = 'fake_' . $i . '_' . uniqid() . '@random.test';
+        $fakeUsername = 'fake_' . $i . '_' . uniqid();
         $fakePassword = 'wrong-password-' . $i;
 
-        // Clear rate limiter for this email to avoid throttling
-        RateLimiter::clear(strtolower($fakeEmail) . '|127.0.0.1');
+        // Clear rate limiter for this username to avoid throttling
+        RateLimiter::clear(strtolower($fakeUsername) . '|127.0.0.1');
 
         $response = $this->post('/login', [
-            'email'    => $fakeEmail,
+            'username' => $fakeUsername,
             'password' => $fakePassword,
         ]);
 
@@ -36,10 +36,10 @@ test('invalid credentials always produce an error', function () {
         }
     }
 
-    // Also test with the real email but wrong password
-    RateLimiter::clear('real@example.com|127.0.0.1');
+    // Also test with the real username but wrong password
+    RateLimiter::clear('realuser|127.0.0.1');
     $response = $this->post('/login', [
-        'email'    => 'real@example.com',
+        'username' => 'realuser',
         'password' => 'wrong-password',
     ]);
     expect($response->status())->toBeIn([302, 422]);

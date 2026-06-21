@@ -74,8 +74,17 @@
     </nav>
 
     <!-- Page Content (offset for fixed navbar) -->
-    <main class="pt-14 min-h-screen">
-        {{ $slot }}
+    <main class="pt-14 min-h-screen flex flex-col">
+        <div class="flex-1">
+            {{ $slot }}
+        </div>
+
+        <!-- Footer -->
+        <footer class="py-6 border-t border-gray-200 bg-white text-center shrink-0 mt-8">
+            <p class="text-sm text-gray-500">
+                &copy; {{ date('Y') }} StashDock. All rights reserved.
+            </p>
+        </footer>
     </main>
 
 </body>

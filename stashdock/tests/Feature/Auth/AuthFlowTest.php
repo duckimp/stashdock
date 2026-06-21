@@ -6,12 +6,12 @@ uses(RefreshDatabase::class);
 
 test('login with valid credentials redirects to dashboard', function () {
     $user = User::factory()->create([
-        'email'    => 'admin@local.test',
+        'username' => 'admin',
         'password' => bcrypt('password123'),
     ]);
 
     $response = $this->post('/login', [
-        'email'    => 'admin@local.test',
+        'username' => 'admin',
         'password' => 'password123',
     ]);
 
